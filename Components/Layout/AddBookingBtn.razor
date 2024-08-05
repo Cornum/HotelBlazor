@@ -1,12 +1,14 @@
 ﻿@using HotelBlazer.Components.Models
+@rendermode InteractiveServer
 
 @code {
     private bool _isVisible = false;
-    private DateTime _dayStart;
+    private DateTime _dayStart = DateTime.Now;
     private int _days;
     private string _name = "";
     private int _room;
     private BookingStatus _status;
+    List<int> Rooms = new List<int> { 101, 102, 103, 104, 201, 301, 302 };
 
     [Parameter]
     public EventCallback<Person> OnAddPerson { get; set; }
@@ -32,28 +34,36 @@
         <div class="popup-form">
             <h3>Add New Booking</h3>
             <div>
-                <label>Start Date:</label>
-                <input type="date" @bind="(_dayStart)" />
+                <label for="start-date">Start Date:</label>
+                <input type="date" id="start-date" 
+                       min="@(new DateTime(2020,01,01).ToString("yyyy-MM-dd"))"
+                       @bind="(_dayStart)"
+                       class="form-control" />
             </div>
             <div>
-                <label>Number of Days:</label>
-                <input type="number" @bind="(_days)" />
+                <label for="days-number">Number of Days:</label>
+                <input id="days-number" type="number" @bind="(_days)" />
             </div>
             <div>
-                <label>Name:</label>
-                <input type="text" @bind="(_name)" />
+                <label for="booking-name">Name:</label>
+                <input type="text" id="booking-name" @bind="(_name)" />
             </div>
             <div>
-                <label>Room:</label>
-                <input type="number" @bind="(_room)" />
+                <label for="room-number">Room:</label>
+                <select id="room-number" @bind="(_room)">
+                    @foreach (var room in Rooms)
+                    {
+                        <option value="@room">@room</option>
+                    }
+                </select>
             </div>
             <div>
-                <label>Status:</label>
-                <select @bind="(_status)">
-                    <option value="BookingStatus.NotConfirmed">Not Confirmed</option>
-                    <option value="BookingStatus.Confirmed">Confirmed</option>
-                    <option value="BookingStatus.Cancelled">Cancelled</option>
-                    <option value="BookingStatus.CheckedIn">Checked In</option>
+                <label for="booking-status">Status:</label>
+                <select id="booking-status" @bind="(_status)">
+                    <option value="@BookingStatus.confirmed">Confirmed</option>
+                    <option value="@BookingStatus.checkedin">Checkedin</option>
+                    <option value="@BookingStatus.checkedout">Checkedout</option>
+                    <option value="@BookingStatus.bookingoffer">Booking offer</option>
                 </select>
             </div>
             <button class="btn btn-success" @onclick="AddPerson">Submit</button>

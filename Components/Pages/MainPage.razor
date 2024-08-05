@@ -2,6 +2,7 @@
 @using System.Globalization
 @using HotelBlazer.Components.Models
 @using HotelBlazer.Components.Layout
+@rendermode InteractiveServer
 
 @attribute [StreamRendering]
 <PageTitle>Home</PageTitle>
@@ -40,49 +41,51 @@
             }
             <button class="btn btn-secondary @(IsActive ? "active" : "")" @onclick="ToggleActiveState">Now</button>
         </div>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>Rooms</th>
-                    @for (int day = 0; day <= 14; day++)
-                    {
-                        <th>@(DateTime.Now.AddDays(day).ToString("ddd d", CultureInfo.InvariantCulture))</th>
-                    }
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var room in Rooms)
-                {
+        @if (IsActive)
+        {
+            <table>
+                <thead>
                     <tr>
-                        <td>@room</td>
-                        @for (int day = 0; day <= 14;)
+                        <th>Rooms</th>
+                        @for (int day = 0; day <= 14; day++)
                         {
-                            var currentDay = DateTime.Now.AddDays(day);
-                            var person = Hosts.FirstOrDefault(h => h.Room == room && h.DayStart <= currentDay && h.DayStart.AddDays(h.Days) > currentDay);
-
-                            if (person != null)
-                            {
-                                var startDay = (person.DayStart - DateTime.Now).Days;
-                                startDay = startDay < 0 ? 0 : startDay;
-                                var length = person.Days - (currentDay - person.DayStart).Days;
-
-                                <td colspan="@length">
-                                    <div class="booking @person.Status">@person.Name</div>
-                                </td>
-
-                                day += length;
-                            }
-                            else
-                            {
-                                <td></td>
-                                day++;
-                            }
+                            <th>@(DateTime.Now.AddDays(day).ToString("ddd d", CultureInfo.InvariantCulture))</th>
                         }
                     </tr>
-                }
-            </tbody>
-        </table>   
+                </thead>
+                <tbody>
+                    @foreach (var room in Rooms)
+                    {
+                        <tr>
+                            <td>@room</td>
+                            @for (int day = 0; day <= 14;)
+                            {
+                                var currentDay = DateTime.Now.AddDays(day);
+                                var person = Hosts.FirstOrDefault(h => h.Room == room && h.DayStart <= currentDay && h.DayStart.AddDays(h.Days) > currentDay);
+
+                                if (person != null)
+                                {
+                                    var startDay = (person.DayStart - DateTime.Now).Days;
+                                    startDay = startDay < 0 ? 0 : startDay;
+                                    var length = person.Days - (currentDay - person.DayStart).Days;
+
+                                    <td colspan="@length">
+                                        <div class="booking @person.Status">@person.Name</div>
+                                    </td>
+
+                                    day += length;
+                                }
+                                else
+                                {
+                                    <td></td>
+                                    day++;
+                                }
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>   
+        }
     </div>
 </div>
 
