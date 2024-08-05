@@ -1,0 +1,86 @@
+﻿@using HotelBlazer.Components.Models
+
+@code {
+    private bool _isVisible = false;
+    private DateTime _dayStart;
+    private int _days;
+    private string _name = "";
+    private int _room;
+    private BookingStatus _status;
+
+    [Parameter]
+    public EventCallback<Person> OnAddPerson { get; set; }
+
+    private void ToggleMenu()
+    {
+        _isVisible = !_isVisible;
+    }
+
+    private void AddPerson()
+    {
+        var newPerson = new Person(_dayStart, _days, _name, _room, _status);
+        OnAddPerson.InvokeAsync(newPerson);
+        ToggleMenu();
+    }
+}
+
+<div>
+    <button class="btn btn-primary" @onclick="ToggleMenu">Add Booking</button>
+
+    @if (_isVisible)
+    {
+        <div class="popup-form">
+            <h3>Add New Booking</h3>
+            <div>
+                <label>Start Date:</label>
+                <input type="date" @bind="(_dayStart)" />
+            </div>
+            <div>
+                <label>Number of Days:</label>
+                <input type="number" @bind="(_days)" />
+            </div>
+            <div>
+                <label>Name:</label>
+                <input type="text" @bind="(_name)" />
+            </div>
+            <div>
+                <label>Room:</label>
+                <input type="number" @bind="(_room)" />
+            </div>
+            <div>
+                <label>Status:</label>
+                <select @bind="(_status)">
+                    <option value="BookingStatus.NotConfirmed">Not Confirmed</option>
+                    <option value="BookingStatus.Confirmed">Confirmed</option>
+                    <option value="BookingStatus.Cancelled">Cancelled</option>
+                    <option value="BookingStatus.CheckedIn">Checked In</option>
+                </select>
+            </div>
+            <button class="btn btn-success" @onclick="AddPerson">Submit</button>
+        </div>
+    }
+</div>
+
+<style>
+    .popup-form {
+        position: absolute;
+        top: 100px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 20px;
+        background-color: white;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 100;
+        border-radius: 5px;
+        width: 300px;
+    }
+
+        .popup-form div {
+            margin-bottom: 10px;
+        }
+
+        .popup-form input,
+        .popup-form select {
+            width: 100%;
+        }
+</style>

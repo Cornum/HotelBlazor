@@ -1,0 +1,187 @@
+﻿@page "/"
+@using System.Globalization
+@using HotelBlazer.Components.Models
+@using HotelBlazer.Components.Layout
+
+@attribute [StreamRendering]
+<PageTitle>Home</PageTitle>
+
+<div class="container">
+    <div class="header">
+        <div class="filters">
+            <select>
+                <option>Housekeeping</option>
+                <option>Facilities</option>
+                <option>Room Types</option>
+                <option>Booking Options</option>
+            </select>
+            <select>
+                <option>Facilities</option>
+                <option>Room Types</option>
+                <option>Booking Options</option>
+            </select>
+            <select>
+                <option>Room Types</option>
+                <option>Booking Options</option>
+            </select>
+            <select>
+                <option>Booking Options</option>
+            </select>
+            <input type="text" placeholder="Search by booking number or guest" />
+            <AddBookingBtn OnAddPerson="AddPersonToList" />
+        </div>
+    </div>
+
+    <div class="calendar">
+        <div class="years">
+            @for (int year = 2020; year <= DateTime.Now.Year+2; year++)
+            {       
+                <button class="btn btn-secondary">@year</button>
+            }
+            <button class="btn btn-secondary @(IsActive ? "active" : "")" @onclick="ToggleActiveState">Now</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Rooms</th>
+                    @for (int day = 0; day <= 14; day++)
+                    {
+                        <th>@(DateTime.Now.AddDays(day).ToString("ddd d", CultureInfo.InvariantCulture))</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var room in Rooms)
+                {
+                    <tr>
+                        <td>@room</td>
+                        @for (int day = 0; day <= 14;)
+                        {
+                            var currentDay = DateTime.Now.AddDays(day);
+                            var person = Hosts.FirstOrDefault(h => h.Room == room && h.DayStart <= currentDay && h.DayStart.AddDays(h.Days) > currentDay);
+
+                            if (person != null)
+                            {
+                                var startDay = (person.DayStart - DateTime.Now).Days;
+                                startDay = startDay < 0 ? 0 : startDay;
+                                var length = person.Days - (currentDay - person.DayStart).Days;
+
+                                <td colspan="@length">
+                                    <div class="booking @person.Status">@person.Name</div>
+                                </td>
+
+                                day += length;
+                            }
+                            else
+                            {
+                                <td></td>
+                                day++;
+                            }
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>   
+    </div>
+</div>
+
+@code {
+    
+    
+    List<int> Rooms = new List<int> { 101, 102, 103, 104, 201, 301, 302 };
+    List<Person> Hosts = new List<Person>
+    {
+    new Person(new DateTime(2024,8,5), 2, "Alex Juice", 101, BookingStatus.confirmed),
+    new Person(new DateTime(2024,8,6), 7, "Darius Ker", 102, BookingStatus.checkedin),
+    new Person(new DateTime(2024,8,8), 2, "Jane Daw", 103, BookingStatus.checkedout),
+    new Person(new DateTime(2024,8,4), 2, "Kassius Lars", 301, BookingStatus.confirmed),
+    new Person(new DateTime(2024,8,5), 3, "Sarah", 201, BookingStatus.bookingoffer),
+    };
+
+    private void AddPersonToList(Person person)
+    {
+        Hosts.Add(person);
+    }
+
+    private bool IsActive = false;
+    private void ToggleActiveState()
+    {
+        IsActive = !IsActive;
+    }
+}
+<style>
+    .container {
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px;
+        background-color: #f8f9fa;
+    }
+
+    .filters select,
+    .filters input {
+        margin-right: 10px;
+        padding: 5px;
+    }
+
+    .years button {
+        margin-right: 5px;
+    }
+
+    .calendar {
+        margin-top: 10px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 2px solid #000;
+    }
+
+    th,
+    td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    .booking {
+        padding: 5px;
+        border-radius: 3px;
+        color: #fff;
+    }
+
+    .confirmed {
+        background-color: #2ecc71;
+    }
+
+    .checkedin {
+        background-color: #3498db;
+    }
+
+    .checkedout {
+        background-color: #e74c3c;
+    }
+
+    .bookingoffer {
+        background-color: #f1c40f;
+    }
+
+    .filters {
+        display: flex;
+        align-items: center;
+    }
+
+    .btn.active {
+        background-color: #f1144f;
+    }
+</style>
